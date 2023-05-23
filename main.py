@@ -1,13 +1,12 @@
 import requests
 import json
 import sqlite3
-
-import schedule
 import win10toast
 import requests
+import schedule
 
 
-#
+#1
 key = '20eaa45d6a8810567a41b6c0472bea18'
 city_name="Tbilisi"
 country_code="ISO 3166-2:GE"
@@ -21,19 +20,34 @@ print(re.text)
 
 toJson=re.text
 
-file=open('json.txt','w')
+
+#2
+toDict=json.loads(toJson)
+re_structured = json.dumps(toDict, indent=6)
+
+file=open('json.json','w')
 file.write(toJson)
 file.close()
 
-# file = open('json.txt', 'r')
+file=open('json_dump.json','w')
+file.write(re_structured)
+file.close()
+
+# file = open('json.json', 'r')
+# toLoad = json.load(file)
+# file.close()
+#
+# file = open('json_dump.json', 'r')
 # toLoad = json.load(file)
 # file.close()
 
-toDict=json.loads(toJson)
+
 
 re_structured = json.dumps(toDict, indent=6)
 print(re_structured)
 
+
+#3
 main = toDict["main"]
 wind=toDict["wind"]
 weather=toDict["weather"]
@@ -79,7 +93,7 @@ cursor = conn.cursor()
 def weather_notification():
     toast = win10toast.ToastNotifier()
 
-    toast.show_toast(title=f'{city_name}-ის ამინდი', msg=f'{main_weather}       ტემპერატურა: {temp_far} ფრნ\nტენიანობა: {humidity}%\nწნევა: {pressure} პასკ\nქარის სიჩქრე: {wind_speed}კმ/სთ', duration=20,icon_path=None)
+    toast.show_toast(title=f'{city_name}-ის ამინდი', msg=f'{main_weather}       ტემპერატურა: {temp_far} ფრნ\nტენიანობა: {humidity}%\nწნევა: {pressure} პასკ\nქარის სიჩქრე: {wind_speed}კმ/სთ', duration=5,icon_path=None)
 
 # schedule.every(10).seconds.do(weather)
 # while True:
