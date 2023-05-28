@@ -7,10 +7,11 @@ import schedule
 
 
 #1
-key = '20eaa45d6a8810567a41b6c0472bea18'
+key = '3b430798bddf0914db3b9793b234d3b0'
 city_name="Tbilisi"
+cnt=1
 country_code="ISO 3166-2:GE"
-url = f'https://api.openweathermap.org/data/2.5/weather?q={city_name},{country_code}&appid={key}'
+url = f'https://api.openweathermap.org/data/2.5/forecast?q={city_name},{country_code}&cnt={cnt}&appid={key}'
 re = requests.get(url)
 
 print(re)
@@ -25,14 +26,14 @@ toJson=re.text
 toDict=json.loads(toJson)
 re_structured = json.dumps(toDict, indent=6)
 
-file=open('json.json','w')
-file.write(toJson)
-file.close()
-
-file=open('json_dump.json','w')
-file.write(re_structured)
-file.close()
-
+# file=open('json.json','w')
+# file.write(toJson)
+# file.close()
+#
+# file=open('json_dump.json','w')
+# file.write(re_structured)
+# file.close()
+#
 # file = open('json.json', 'r')
 # toLoad = json.load(file)
 # file.close()
@@ -48,11 +49,14 @@ print(re_structured)
 
 
 #3
-main = toDict["main"]
-wind=toDict["wind"]
-weather=toDict["weather"]
+list_of_main=toDict["list"]
+num_of_list=list_of_main[cnt-1]
+main = num_of_list["main"]
+wind=num_of_list["wind"]
+weather=num_of_list["weather"]
 weather_num=weather[0]
 
+date=num_of_list["dt_txt"]
 temp_far = main["temp"]
 humidity = main["humidity"]
 pressure=main["pressure"]
@@ -61,7 +65,7 @@ main_weather=weather_num["main"]
 
 
 
-
+print('თარიღი: ',date)
 print('ტემპერატურა: ', temp_far, 'ცელსიუსი')
 print('ტენიანობა: ', humidity, '%')
 print('წნევა: ', pressure, "პას")
@@ -76,6 +80,7 @@ cursor = conn.cursor()
 # cursor.execute('''CREATE TABLE Weather
 #         (id INTEGER PRIMARY KEY AUTOINCREMENT,
 #         ქალაქი VARCHAR(50),
+#         თარიღი VARCHAR(50),
 #         ტემპერატურა FLOAT,
 #         ტენიანობა FLOAT,
 #         წნევა FLOAT,
@@ -83,17 +88,17 @@ cursor = conn.cursor()
 #         ზოგადი_ამინდი VARCHAR(50));''')
 
 
-# cursor.execute('INSERT INTO Weather (ქალაქი, ტემპერატურა, ტენიანობა,წნევა,ქარის_სიჩქარე,ზოგადი_ამინდი) VALUES (?, ?, ?, ?, ?, ?)', (city_name, temp_far, humidity,pressure,wind_speed,main_weather))
-# conn.commit()
-#
-# conn.close()
+cursor.execute('INSERT INTO Weather (ქალაქი,თარიღი, ტემპერატურა, ტენიანობა,წნევა,ქარის_სიჩქარე,ზოგადი_ამინდი) VALUES (?, ?, ?, ?, ?, ?, ?)', (city_name, date, temp_far, humidity,pressure,wind_speed,main_weather))
+conn.commit()
+
+conn.close()
 
 
 #Windows Notification
 def weather_notification():
     toast = win10toast.ToastNotifier()
 
-    toast.show_toast(title=f'{city_name}-ის ამინდი', msg=f'{main_weather}       ტემპერატურა: {temp_far} ფრნ\nტენიანობა: {humidity}%\nწნევა: {pressure} პასკ\nქარის სიჩქრე: {wind_speed}კმ/სთ', duration=5,icon_path=None)
+    toast.show_toast(title=f'{city_name}    თარიღი: {date}', msg=f'{main_weather}       ტემპერატურა: {temp_far} ფრნ\nტენიანობა: {humidity}%\nწნევა: {pressure} პასკ\nქარის სიჩქრე: {wind_speed}კმ/სთ', duration=5,icon_path=None)
 
 # schedule.every(10).seconds.do(weather)
 # while True:
